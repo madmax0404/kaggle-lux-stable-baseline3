@@ -212,10 +212,12 @@ Below is a placeholder for training performance graphs (e.g. average reward per 
 <sub>**▲Training Metrics Example**</sub>
 
 ## Project Structure
-The repository is organized into several directories with Jupyter notebooks and supporting modules:
-Notebooks/EDA/ – Exploratory Data Analysis. Contains notebooks for exploring the Lux AI environment and data. For example, testing_env.ipynb and simple-ppo-training.ipynb were used early on to validate the environment interface and run small-scale PPO tests. These notebooks helped define observation structures, verify reward signals, and ensure the custom gym wrapper worked correctly before full training.
-Notebooks/Agent_Development/ – Iterative Agent Development. This is the core of the project, with notebooks documenting different development stages (timestamped by date). Key components include:
-Environment Wrapper (Modified_lux3_wrapper/) – Python module defining ModifiedLuxAIS3GymEnv (a subclass of gym.Env). This wraps the official Lux AI environment to provide a clean Gym API. It defines the observation space (a spaces.Dict with all game features) and action space (a spaces.MultiDiscrete for all unit actions) in a format the RL algorithm can use. It also handles resets, step transitions, and converts between game state and RL-friendly data structures.
-Custom PPO and Policy (Modified_stablebaseline3_PPO/ and policy classes) – Modules where Stable Baselines3’s PPO implementation is copied and adjusted for our needs. We extended SB3’s OnPolicyAlgorithm (PPO) to support dual policies for self-play and the complex action outputs. We also created custom policy classes (e.g. CustomMultiInputPolicy) and a CustomFeatureExtractor. These define the neural network architecture described above and override how actions and values are computed.
-Training Notebooks (lux3-agent_development_*.ipynb) – Multiple notebooks where experiments were run (with various hyperparameters, architectures, etc.). In these, we instantiate the environment and model, then call model.learn() or custom training loops. We save intermediate models, log to TensorBoard (logs/ directory), and occasionally export models (e.g. to ONNX) for evaluation. Each notebook version represents an improvement or change (for instance, trying different network sizes or training strategies). Together they show the progression of the agent’s learning over time.
-Notebooks/Testing_Agents/ – Agent Evaluation and Submission Prep. Notebooks in this folder were used to evaluate the trained agent and prepare for submission. For example, there are scripts to load a learned model and play it against the provided baseline or itself, generating replays for qualitative analysis. There is also a copy of the Kaggle Python kit starter notebook, which we used to integrate our agent into Kaggle’s format (e.g. packaging the model weights and inference logic into a agent.py). This was the staging area for making a submission package and ensuring it ran within the competition environment. (Ultimately, the final agent model file turned out to exceed the competition’s file size limit, which prevented submission—this limit wasn’t initially clear in the rules.)
+kaggle-lux-stable-baseline3/
+├── GreedyLRScheduler/             # GreedyLR implementation
+├── Notebooks/                     # 주피터 노트북 파일들
+│   ├── Agent_Development/         # 에이전트 개발 및 실험
+│   └── EDA/                       # 탐색적 데이터 분석
+├── images/
+└── modified_packages/             # 수정된 패키지들
+    ├── luxai_s3/                  # 대회용 게임 environment 패키지
+    └── stable_baseline3/          # 강화학습용 패키지
