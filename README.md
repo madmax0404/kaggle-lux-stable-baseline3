@@ -1,6 +1,15 @@
 # Lux AI Season 3 – Reinforcement Learning Neural Net Agent (Kaggle Competition)
 https://www.kaggle.com/competitions/lux-ai-season-3
 
+## 기술 스택 (Tech Stack)
+* **Programming Language**: Python
+* **Deep Learning Framework**: PyTorch
+* **Reinforcement Learning**: Stable-Baselines3 - https://stable-baselines3.readthedocs.io/en/master/
+* **Environment**: Lux AI Season 3 game environment (luxai_s3 Python package) for simulation. The environment is JAX-based but wrapped for Python usage, providing the game’s state and reward mechanics.
+* **Tooling & Platform**: Jupyter Notebooks (Kaggle Notebooks) and VS Code for development and experimentation. Training was conducted on an Ubuntu Linux system with CUDA support for GPU acceleration.
+* **Visualization**: TensorBoard
+* **OS**: Linux (Ubuntu Desktop 24.04 LTS)
+
 ## Overview
 This project implements an **experimental reinforcement learning agent** for the **Lux AI Season 3** competition on Kaggle (NeurIPS 2024). Lux AI is a two-player strategy game where each side controls units on a 24x24 grid to collect resources, fight opponents, and capture relics. The goal here was not just to compete, but to **learn about deep reinforcement learning** by building an agent from scratch. The agent was trained using **Proximal Policy Optimization (PPO)** from the Stable Baselines3 (SB3) library, heavily customized to handle the complex observation and action space of the game. This was a learning-focused project: the journey of designing novel neural network architectures and training pipelines was the priority, even though the final model was too large to submit under Kaggle’s hidden file size limits (hence no official leaderboard result).
 
