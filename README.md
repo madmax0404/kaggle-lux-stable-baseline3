@@ -48,9 +48,59 @@ MultiInputActorCriticPolicy(
       (unit_sensor_range): Flatten(start_dim=1, end_dim=-1)
     )
   )
-  
+  (mlp_extractor): OptimizedModule(
+    (_orig_mod): MlpExtractor(
+      (policy_net): Sequential(
+        (0): Linear(in_features=20897, out_features=4096, bias=True)
+        (1): LayerNorm((4096,), eps=1e-05, elementwise_affine=True)
+        (2): SiLU()
+        (3): Dropout(p=0.1, inplace=False)
+        (4): Linear(in_features=4096, out_features=2048, bias=True)
+        (5): LayerNorm((2048,), eps=1e-05, elementwise_affine=True)
+        (6): SiLU()
+        (7): Dropout(p=0.1, inplace=False)
+        (8): Linear(in_features=2048, out_features=1024, bias=True)
+        (9): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+        (10): SiLU()
+        (11): Dropout(p=0.1, inplace=False)
+      )
+      (value_net): Sequential(
+        (0): Linear(in_features=20897, out_features=4096, bias=True)
+        (1): LayerNorm((4096,), eps=1e-05, elementwise_affine=True)
+        (2): SiLU()
+        (3): Dropout(p=0.1, inplace=False)
+        (4): Linear(in_features=4096, out_features=2048, bias=True)
+        (5): LayerNorm((2048,), eps=1e-05, elementwise_affine=True)
+        (6): SiLU()
+        (7): Dropout(p=0.1, inplace=False)
+        (8): Linear(in_features=2048, out_features=1024, bias=True)
+        (9): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+        (10): SiLU()
+        (11): Dropout(p=0.1, inplace=False)
+        (12): Linear(in_features=1024, out_features=512, bias=True)
+        (13): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (14): SiLU()
+        (15): Dropout(p=0.1, inplace=False)
+        (16): Linear(in_features=512, out_features=256, bias=True)
+        (17): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (18): SiLU()
+        (19): Dropout(p=0.1, inplace=False)
+        (20): Linear(in_features=256, out_features=128, bias=True)
+        (21): LayerNorm((128,), eps=1e-05, elementwise_affine=True)
+        (22): SiLU()
+        (23): Dropout(p=0.1, inplace=False)
+      )
+    )
+  )
+  (action_net): Linear(in_features=1024, out_features=576, bias=True)
+  (value_net): Linear(in_features=128, out_features=1, bias=True)
+)
+```
+<sub>**▲Model Architecture**</sub>
 
-  (mlp_extractor): OptimizedModule(gainst a clone of itself or a previous version. This approach is crucial for multi-agent learning, and it required managing two networks and alternating their roles during experience collection. Self-play ensures the agent improves even in the absence of a human-defined opponent, by continuously adapting to its own strategies.
+* **Stable Baselines3 Customization**: Extended the SB3 framework by subclassing and modifying its components to use the custom network. For example, a bespoke MultiInputPolicy was implemented to incorporate the CNN extractor and an enhanced MLP backbone. We integrated these components into SB3’s PPO training loop, effectively **injecting our custom model into the SB3 pipeline** while reusing stable training algorithms (e.g. advantage estimation, optimization routines). This demonstrates deep understanding of the RL library’s internals and how to extend them.
+* **Multi-Discrete Action Handling**: The Lux AI game requires selecting actions for up to 16 units simultaneously, with each action composed of multiple parts (e.g. action type and target coordinates). We implemented a **custom action distribution** to handle this multi-discrete action space. The policy’s forward pass outputs a structured set of logits which are then sampled into per-unit actions (including conditional sub-actions for targeting). This involved building a tailored output layer and sampling procedure (using PyTorch) to ensure the agent can issue commands to all units each time-step.
+* **Self-Play Training Setup**: To train in a two-player environment, the agent was configured for **self-play**. The training pipeline can initialize two instances of the policy (one for each team) so that the agent competes against a clone of itself or a previous version. This approach is crucial for multi-agent learning, and it required managing two networks and alternating their roles during experience collection. Self-play ensures the agent improves even in the absence of a human-defined opponent, by continuously adapting to its own strategies.
 
 ## Training Process
 
