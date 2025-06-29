@@ -212,12 +212,12 @@ Below is a placeholder for training performance graphs (e.g. average reward per 
 <sub>**▲Training Metrics Example**</sub>
 
 ## Project Structure
-kaggle-lux-stable-baseline3/
-├── GreedyLRScheduler/             # GreedyLR implementation
-├── Notebooks/                     # 주피터 노트북 파일들
-│   ├── Agent_Development/         # 에이전트 개발 및 실험
-│   └── EDA/                       # 탐색적 데이터 분석
-├── images/
-└── modified_packages/             # 수정된 패키지들
-    ├── luxai_s3/                  # 대회용 게임 environment 패키지
-    └── stable_baseline3/          # 강화학습용 패키지
+    kaggle-lux-stable-baseline3/
+    ├── GreedyLRScheduler/             # GreedyLR implementation
+    ├── Notebooks/                     # 주피터 노트북 파일들
+    │   ├── Agent_Development/         # 에이전트 개발 및 실험
+    │   └── EDA/                       # 탐색적 데이터 분석
+    ├── images/
+    └── modified_packages/             # 수정된 패키지들
+        ├── luxai_s3/                  # 대회용 게임 environment 패키지
+        └── stable_baseline3/          # 강화학습용 패키지
