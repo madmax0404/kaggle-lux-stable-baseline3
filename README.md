@@ -5,12 +5,11 @@ https://www.kaggle.com/competitions/lux-ai-season-3
 This project implements an **experimental reinforcement learning agent** for the **Lux AI Season 3** competition on Kaggle (NeurIPS 2024). Lux AI is a two-player strategy game where each side controls units on a 24x24 grid to collect resources, fight opponents, and capture relics. The goal here was not just to compete, but to **learn about deep reinforcement learning** by building an agent from scratch. The agent was trained using **Proximal Policy Optimization (PPO)** from the Stable Baselines3 (SB3) library, heavily customized to handle the complex observation and action space of the game. This was a learning-focused project: the journey of designing novel neural network architectures and training pipelines was the priority, even though the final model was too large to submit under Kaggle’s hidden file size limits (hence no official leaderboard result).
 
 ## Highlights
-* **Custom Gym Environment Wrapper**: Developed a custom OpenAI Gym-compatible wrapper for the Lux AI environment to output a rich **dictionary observation space** and handle the multi-agent setup. The observation includes multiple feature planes (e.g. a 24x24 map of terrain and energy, vision masks) and unit state vectors for both teams. This wrapper makes it possible to interface Lux AI with standard RL libraries.
-* **Neural Network Architecture Innovations**: Designed and integrated a **custom neural network** for the agent’s policy/value function. A **CNN-based feature extractor** processes spatial 24x24 grid data (e.g. maps of resources/terrain) while other numerical features are flattened and concatenated. This **Multi-input** architecture combines convolutional layers for spatial features with fully-connected layers for non-spatial data, enabling the agent to handle the diverse observation inputs.
+* **Custom Neural Network Architecture**: Designed and integrated a **custom neural network** for the agent’s policy/value function. A **CNN-based feature extractor** processes spatial 24x24 grid data (e.g. maps of resources/terrain) while other numerical features are flattened and concatenated. This **Multi-input** architecture combines convolutional layers for spatial features with fully-connected layers for non-spatial data, enabling the agent to handle the diverse observation inputs.
 
 ```
 MultiInputActorCriticPolicy(
-  (features_extractor): CustomFeatureExtractor(
+  (features_extractor, pi_features_extractor, vf_features_extractor): CustomFeatureExtractor(
     (cnn_extractor): OptimizedModule(
       (_orig_mod): Sequential(
         (0): Conv2d(4, 16, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
@@ -49,137 +48,9 @@ MultiInputActorCriticPolicy(
       (unit_sensor_range): Flatten(start_dim=1, end_dim=-1)
     )
   )
-  (pi_features_extractor): CustomFeatureExtractor(
-    (cnn_extractor): OptimizedModule(
-      (_orig_mod): Sequential(
-        (0): Conv2d(4, 16, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
-        (1): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-        (2): SiLU()
-        (3): Conv2d(16, 32, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
-        (4): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-        (5): SiLU()
-        (6): Flatten(start_dim=1, end_dim=-1)
-        (7): Dropout(p=0.1, inplace=False)
-      )
-    )
-    (extractors): ModuleDict(
-      (enemy_energies): Flatten(start_dim=1, end_dim=-1)
-      (enemy_positions): Flatten(start_dim=1, end_dim=-1)
-      (enemy_spawn_location): Flatten(start_dim=1, end_dim=-1)
-      (enemy_visible_mask): Flatten(start_dim=1, end_dim=-1)
-      (map_explored_status): Flatten(start_dim=1, end_dim=-1)
-      (map_features_energy): Flatten(start_dim=1, end_dim=-1)
-      (map_features_tile_type): Flatten(start_dim=1, end_dim=-1)
-      (match_steps): Flatten(start_dim=1, end_dim=-1)
-      (my_spawn_location): Flatten(start_dim=1, end_dim=-1)
-      (relic_nodes): Flatten(start_dim=1, end_dim=-1)
-      (relic_nodes_mask): Flatten(start_dim=1, end_dim=-1)
-      (sensor_mask): Flatten(start_dim=1, end_dim=-1)
-      (steps): Flatten(start_dim=1, end_dim=-1)
-      (team_id): Flatten(start_dim=1, end_dim=-1)
-      (team_points): Flatten(start_dim=1, end_dim=-1)
-      (team_wins): Flatten(start_dim=1, end_dim=-1)
-      (unit_active_mask): Flatten(start_dim=1, end_dim=-1)
-      (unit_energies): Flatten(start_dim=1, end_dim=-1)
-      (unit_move_cost): Flatten(start_dim=1, end_dim=-1)
-      (unit_positions): Flatten(start_dim=1, end_dim=-1)
-      (unit_sap_cost): Flatten(start_dim=1, end_dim=-1)
-      (unit_sap_range): Flatten(start_dim=1, end_dim=-1)
-      (unit_sensor_range): Flatten(start_dim=1, end_dim=-1)
-    )
-  )
-  (vf_features_extractor): CustomFeatureExtractor(
-    (cnn_extractor): OptimizedModule(
-      (_orig_mod): Sequential(
-        (0): Conv2d(4, 16, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
-        (1): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-        (2): SiLU()
-        (3): Conv2d(16, 32, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
-        (4): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-        (5): SiLU()
-        (6): Flatten(start_dim=1, end_dim=-1)
-        (7): Dropout(p=0.1, inplace=False)
-      )
-    )
-    (extractors): ModuleDict(
-      (enemy_energies): Flatten(start_dim=1, end_dim=-1)
-      (enemy_positions): Flatten(start_dim=1, end_dim=-1)
-      (enemy_spawn_location): Flatten(start_dim=1, end_dim=-1)
-      (enemy_visible_mask): Flatten(start_dim=1, end_dim=-1)
-      (map_explored_status): Flatten(start_dim=1, end_dim=-1)
-      (map_features_energy): Flatten(start_dim=1, end_dim=-1)
-      (map_features_tile_type): Flatten(start_dim=1, end_dim=-1)
-      (match_steps): Flatten(start_dim=1, end_dim=-1)
-      (my_spawn_location): Flatten(start_dim=1, end_dim=-1)
-      (relic_nodes): Flatten(start_dim=1, end_dim=-1)
-      (relic_nodes_mask): Flatten(start_dim=1, end_dim=-1)
-      (sensor_mask): Flatten(start_dim=1, end_dim=-1)
-      (steps): Flatten(start_dim=1, end_dim=-1)
-      (team_id): Flatten(start_dim=1, end_dim=-1)
-      (team_points): Flatten(start_dim=1, end_dim=-1)
-      (team_wins): Flatten(start_dim=1, end_dim=-1)
-      (unit_active_mask): Flatten(start_dim=1, end_dim=-1)
-      (unit_energies): Flatten(start_dim=1, end_dim=-1)
-      (unit_move_cost): Flatten(start_dim=1, end_dim=-1)
-      (unit_positions): Flatten(start_dim=1, end_dim=-1)
-      (unit_sap_cost): Flatten(start_dim=1, end_dim=-1)
-      (unit_sap_range): Flatten(start_dim=1, end_dim=-1)
-      (unit_sensor_range): Flatten(start_dim=1, end_dim=-1)
-    )
-  )
-  (mlp_extractor): OptimizedModule(
-    (_orig_mod): MlpExtractor(
-      (policy_net): Sequential(
-        (0): Linear(in_features=20897, out_features=4096, bias=True)
-        (1): LayerNorm((4096,), eps=1e-05, elementwise_affine=True)
-        (2): SiLU()
-        (3): Dropout(p=0.1, inplace=False)
-        (4): Linear(in_features=4096, out_features=2048, bias=True)
-        (5): LayerNorm((2048,), eps=1e-05, elementwise_affine=True)
-        (6): SiLU()
-        (7): Dropout(p=0.1, inplace=False)
-        (8): Linear(in_features=2048, out_features=1024, bias=True)
-        (9): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-        (10): SiLU()
-        (11): Dropout(p=0.1, inplace=False)
-      )
-      (value_net): Sequential(
-        (0): Linear(in_features=20897, out_features=4096, bias=True)
-        (1): LayerNorm((4096,), eps=1e-05, elementwise_affine=True)
-        (2): SiLU()
-        (3): Dropout(p=0.1, inplace=False)
-        (4): Linear(in_features=4096, out_features=2048, bias=True)
-        (5): LayerNorm((2048,), eps=1e-05, elementwise_affine=True)
-        (6): SiLU()
-        (7): Dropout(p=0.1, inplace=False)
-        (8): Linear(in_features=2048, out_features=1024, bias=True)
-        (9): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-        (10): SiLU()
-        (11): Dropout(p=0.1, inplace=False)
-        (12): Linear(in_features=1024, out_features=512, bias=True)
-        (13): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
-        (14): SiLU()
-        (15): Dropout(p=0.1, inplace=False)
-        (16): Linear(in_features=512, out_features=256, bias=True)
-        (17): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
-        (18): SiLU()
-        (19): Dropout(p=0.1, inplace=False)
-        (20): Linear(in_features=256, out_features=128, bias=True)
-        (21): LayerNorm((128,), eps=1e-05, elementwise_affine=True)
-        (22): SiLU()
-        (23): Dropout(p=0.1, inplace=False)
-      )
-    )
-  )
-  (action_net): Linear(in_features=1024, out_features=576, bias=True)
-  (value_net): Linear(in_features=128, out_features=1, bias=True)
-)
-```
-<sub>**▲Model Architecture**</sub>
+  
 
-* **Stable Baselines3 Customization**: Extended the SB3 framework by subclassing and modifying its components to use the custom network. For example, a bespoke MultiInputPolicy was implemented to incorporate the CNN extractor and an enhanced MLP backbone. We integrated these components into SB3’s PPO training loop, effectively **injecting our custom model into the SB3 pipeline** while reusing stable training algorithms (e.g. advantage estimation, optimization routines). This demonstrates deep understanding of the RL library’s internals and how to extend them.
-* **Multi-Discrete Action Handling**: The Lux AI game requires selecting actions for up to 16 units simultaneously, with each action composed of multiple parts (e.g. action type and target coordinates). We implemented a **custom action distribution** to handle this multi-discrete action space. The policy’s forward pass outputs a structured set of logits which are then sampled into per-unit actions (including conditional sub-actions for targeting). This involved building a tailored output layer and sampling procedure (using PyTorch) to ensure the agent can issue commands to all units each time-step.
-* **Self-Play Training Setup**: To train in a two-player environment, the agent was configured for **self-play**. The training pipeline can initialize two instances of the policy (one for each team) so that the agent competes against a clone of itself or a previous version. This approach is crucial for multi-agent learning, and it required managing two networks and alternating their roles during experience collection. Self-play ensures the agent improves even in the absence of a human-defined opponent, by continuously adapting to its own strategies.
+  (mlp_extractor): OptimizedModule(gainst a clone of itself or a previous version. This approach is crucial for multi-agent learning, and it required managing two networks and alternating their roles during experience collection. Self-play ensures the agent improves even in the absence of a human-defined opponent, by continuously adapting to its own strategies.
 
 ## Training Process
 
