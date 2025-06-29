@@ -1,20 +1,20 @@
-# Lux AI Season 3 – Reinforcement Learning Neural Net Agent (Kaggle Competition)
+# Lux AI Season 3 – 강화학습 신경망 에이전트 (Kaggle 대회)
 https://www.kaggle.com/competitions/lux-ai-season-3
 
-## 기술 스택 (Tech Stack)
-* **Programming Language**: Python
-* **Deep Learning Framework**: PyTorch
-* **Reinforcement Learning**: Stable-Baselines3 - https://stable-baselines3.readthedocs.io/en/master/
-* **Environment**: Lux AI Season 3 game environment (luxai_s3 Python package) for simulation. The environment is JAX-based but wrapped for Python usage, providing the game’s state and reward mechanics.
-* **Tooling & Platform**: Jupyter Notebooks (Kaggle Notebooks) and VS Code for development and experimentation. Training was conducted on an Ubuntu Linux system with CUDA support for GPU acceleration.
-* **Visualization**: TensorBoard
-* **OS**: Linux (Ubuntu Desktop 24.04 LTS)
+## 기술 스택
+* **프로그래밍 언어**: Python
+* **딥러닝 프레임워크**: PyTorch
+* **강화학습**: Stable Baselines 3 - https://stable-baselines3.readthedocs.io/en/master/
+* **게임 환경**: Lux AI Season 3 게임 환경(luxai_s3 Python 패키지)에서 시뮬레이션 진행. 환경 자체는 JAX 기반이지만 Python에서 사용 가능하도록 래핑되어 있어 게임의 상태와 보상 메커니즘을 제공함.
+* **툴 및 개발 환경**: Jupyter Notebook과 VS Code를 활용하여 개발 및 실험을 진행. 훈련은 GPU 가속을 지원하는 Ubuntu Linux 시스템에서 수행.
+* **시각화**: TensorBoard
+* **운영체제**: Linux (Ubuntu Desktop 24.04 LTS)
 
-## Overview
-This project implements an **experimental reinforcement learning agent** for the **Lux AI Season 3** competition on Kaggle (NeurIPS 2024). Lux AI is a two-player strategy game where each side controls units on a 24x24 grid to collect resources, fight opponents, and capture relics. The goal here was not just to compete, but to **learn about deep reinforcement learning** by building an agent from scratch. The agent was trained using **Proximal Policy Optimization (PPO)** from the Stable Baselines3 (SB3) library, heavily customized to handle the complex observation and action space of the game. This was a learning-focused project: the journey of designing novel neural network architectures and training pipelines was the priority, even though the final model was too large to submit under Kaggle’s hidden file size limits (hence no official leaderboard result).
+## 개요
+이 프로젝트는 Kaggle(NeurIPS 2024)에서 진행된 **Lux AI Season 3** 대회를 위한 **실험적 강화학습 에이전트** 구현 사례입니다. Lux AI는 24x24 격자 맵 위에서 두 플레이어가 유닛을 조종해 자원을 수집하고, 상대와 전투하며, 유물을 점령하는 전략 게임입니다. 본 프로젝트의 목표는 단순히 대회 참가에 그치지 않고, **딥러닝 기반 강화학습의 전반을 실전에서 경험하고 배우는 것**이었습니다. Stable Baselines3(SB3)의 **PPO(Proximal Policy Optimization)** 알고리즘을 바탕으로 게임의 복잡한 관측/행동 공간을 다룰 수 있도록 에이전트를 직접 커스터마이즈했습니다. 이 과정 자체가 학습의 핵심이었으며, 최종적으로 생성된 모델이 Kaggle 제출 파일 용량 제한(약 100MB)을 초과해 공식 제출은 못 했지만, 실제 RL 설계와 구현을 깊이 경험할 수 있었습니다.
 
-## Highlights
-* **Custom Neural Network Architecture**: Designed and integrated a **custom neural network** for the agent’s policy/value function. A **CNN-based feature extractor** processes spatial 24x24 grid data (e.g. maps of resources/terrain) while other numerical features are flattened and concatenated. This **Multi-input** architecture combines convolutional layers for spatial features with fully-connected layers for non-spatial data, enabling the agent to handle the diverse observation inputs.
+## 주요 특징
+* **커스텀 신경망 아키텍처**: 에이전트의 정책/가치 함수에 맞게 **커스텀 신경망**을 설계·적용했습니다. 24x24 격자 데이터(자원/지형 등)는 **CNN 기반 feature extractor**로 처리하고, 그 외 수치 피처들은 펼쳐서(flatten) 함께 연결(concat)하는 **멀티-입력(Multi-input) 아키텍처**를 도입했습니다. 이를 통해 공간적 데이터와 비공간적 데이터를 모두 효과적으로 처리할 수 있었습니다.
 
 ```
 MultiInputActorCriticPolicy(
@@ -107,48 +107,50 @@ MultiInputActorCriticPolicy(
 ```
 <sub>**▲Model Architecture**</sub>
 
-* **Custom Gym Environment Wrapper**: Developed a custom OpenAI Gym-compatible wrapper for the Lux AI environment to output a rich **dictionary observation space** and handle the multi-agent setup. The observation includes multiple feature planes (e.g. a 24x24 map of terrain and energy, vision masks) and unit state vectors for both teams. This wrapper makes it possible to interface Lux AI with standard RL libraries.
-* **Stable Baselines3 Customization**: Extended the SB3 framework by subclassing and modifying its components to use the custom network. For example, a bespoke MultiInputPolicy was implemented to incorporate the CNN extractor and an enhanced MLP backbone. We integrated these components into SB3’s PPO training loop, effectively **injecting our custom model into the SB3 pipeline** while reusing stable training algorithms (e.g. advantage estimation, optimization routines). This demonstrates deep understanding of the RL library’s internals and how to extend them.
-* **Multi-Discrete Action Handling**: The Lux AI game requires selecting actions for up to 16 units simultaneously, with each action composed of multiple parts (e.g. action type and target coordinates). We implemented a **custom action distribution** to handle this multi-discrete action space. The policy’s forward pass outputs a structured set of logits which are then sampled into per-unit actions (including conditional sub-actions for targeting). This involved building a tailored output layer and sampling procedure (using PyTorch) to ensure the agent can issue commands to all units each time-step.
-* **Self-Play Training Setup**: To train in a two-player environment, the agent was configured for **self-play**. The training pipeline can initialize two instances of the policy (one for each team) so that the agent competes against a clone of itself or a previous version. This approach is crucial for multi-agent learning, and it required managing two networks and alternating their roles during experience collection. Self-play ensures the agent improves even in the absence of a human-defined opponent, by continuously adapting to its own strategies.
+* **커스텀 Gym 환경 래퍼**: OpenAI Gym 호환 래퍼를 직접 구현해, Lux AI 환경의 다양한 관측값을 **딕셔너리 기반 관측 공간**으로 출력하고, 멀티 에이전트 설정을 처리했습니다. 24x24 지형/에너지 맵, 시야 마스크, 각 유닛의 상태 벡터 등 다양한 정보를 RL 라이브러리와 쉽게 연동 가능하게 만들었습니다.
+* **Stable Baselines 3 커스터마이징**: SB3의 구조를 상속/수정하여 커스텀 네트워크와 멀티 입력 정책(MultiInputPolicy)이 동작하도록 프레임워크를 확장했습니다. PPO 학습 루프에 맞게 모델을 통합해 SB3의 안정적인 학습 알고리즘(Advantage estimation, 최적화 루틴 등)을 재사용하되, 내부 구조는 완전히 커스터마이즈했습니다.
+* **멀티-디스크리트 액션 처리**: Lux AI는 최대 16개 유닛에 대해 동시 행동(행동 종류 및 좌표 등 복합형 액션)을 요구하므로, 이를 위해 **커스텀 액션 분포**와 출력/샘플링 로직을 별도로 구현했습니다. PyTorch로 구현된 정책의 forward pass가 유닛별 액션을 모두 산출할 수 있도록 설계했으며, 조건부 하위 액션(예: 이동·공격시 방향 지정)도 동적으로 처리했습니다.
+* **Self-Play(자가 대전) 훈련**: 두 명의 플레이어가 대전하는 환경 특성상, 에이전트가 **자가 대전(self-play)**을 통해 스스로와 대결하며 발전하도록 파이프라인을 구성했습니다. 두 개의 정책을 번갈아 학습시키거나, 이전 버전과 대결하게 하여 멀티에이전트 학습의 기반을 마련했습니다.
 
-## Training Process
+## 학습 과정
 
-**Reinforcement Learning Setup**: We trained the agent using **PPO (Proximal Policy Optimization)**, an on-policy RL algorithm, with Stable Baselines3 as the foundation. The environment was set up with multiple parallel instances (using SB3’s VecEnv) to collect experience faster. At each training iteration, the agent (as player 0) played games against an opponent (which in self-play was a copy of the same agent or a past checkpoint). The **reward function** is the game’s scoring mechanism (points for collecting relics and winning the match), which the agent tries to maximize over the course of an episode.
+**강화학습 세팅**: 에이전트는 SB3 기반 **PPO**로 훈련되었고, 빠른 경험 수집을 위해 여러 환경 인스턴스(VecEnv)를 병렬로 사용했습니다. 각 학습 반복에서 에이전트(player 0)는 복제된 자신 또는 과거 체크포인트와 대전했습니다. **보상 함수**는 게임 내 점수(유물 수집 및 승리 등)를 기반으로 하여, 최종적으로 최대화하는 것이 목표입니다.
 
-**Neural Network & Policy**: The agent’s policy network receives a **multi-modal observation** and outputs actions for all units. Under the hood, our CustomFeatureExtractor first processes the observation dict: four 24×24 feature maps (e.g. explored terrain, energy on the map, etc.) go through convolutional layers, while all other features (unit counts, coordinates, team scores, etc.) are flattened. These are concatenated into one large feature vector. Next, a deep fully-connected **MLP** (with SiLU activations and layer normalization) maps this vector into latent features. PPO then splits this latent representation into two heads: one for the **policy** (action probabilities) and one for the **value function** (state-value estimation). The policy head in our case is custom-built to produce the multi-discrete action output for 16 units. Rather than treating each of the many discrete action components independently, the network outputs structured logits that are reshaped into the appropriate per-unit action distributions. We sample an action for each unit from these distributions to form the complete MultiDiscrete action. This design allowed implementing conditional actions (for example, only units that choose the “move” or “attack” action need a direction – our network outputs direction logits that are only used if the base action is of that type).
+**신경망 및 정책**: 정책 네트워크는 **멀티모달 관측값**을 받아 모든 유닛의 행동을 출력합니다. CustomFeatureExtractor가 관측값(24×24 맵 4장 등)을 CNN으로, 그 외 피처는 펼쳐서 하나의 벡터로 만든 후, 깊은 fully-connected MLP(활성화 함수 SiLU, LayerNorm 적용)에서 잠재 피처로 변환합니다. PPO는 이 잠재벡터를 정책(행동 확률)과 가치함수(상태가치)로 분리해 처리합니다. 특히 정책 부분은 16유닛 멀티-디스크리트 액션에 맞춰 커스텀 구조로 설계해, 각 유닛별로 행동·타겟 등을 구조화된 확률분포로 산출합니다. 조건부 행동(예: 이동/공격시 방향 지정 등)도 네트워크에서 유연하게 지원합니다.
 
-**PPO Training Loop**: With the environment and policy defined, training proceeded in iterations. Each iteration, the agent plays for a number of time-steps (collecting observations, actions, and rewards). This experience is stored in SB3’s rollout buffer. After each rollout, we perform several epochs of PPO update: the policy’s parameters are updated via gradient descent to improve the probability of rewarding actions (while avoiding too large a change per PPO’s clipped objective). We made use of **TensorBoard logging** to track key metrics like average reward, policy loss, value loss, etc., which helped in debugging and hyperparameter tuning. We experimented with hyperparameters such as learning rate (e.g. 1e-5 to 6e-4), entropy bonus (to encourage exploration), and network sizes to stabilize training. Training was computationally intensive – the final model has on the order of tens of millions of parameters – so we utilized GPU acceleration and PyTorch 2.0 optimizations (even compiling parts of the model for speed).
+**PPO 학습 루프**: 환경과 정책이 정의된 후, 학습은 반복적으로 진행됩니다. 일정 시간(step)마다 경험(관측, 행동, 보상 등)을 rollout buffer에 저장하고, 여러 에포크에 걸쳐 PPO 업데이트를 실시합니다(정책 파라미터를 gradient descent로 보상 극대화 방향으로 조정). **TensorBoard**로 평균 보상, 정책 손실, 가치 손실 등 주요 지표를 로깅해 하이퍼파라미터 튜닝 및 디버깅에 활용했습니다. 학습은 매우 고연산을 요구해 GPU 및 PyTorch 2.0 최적화(일부 모델 부분 컴파일 등)를 적극적으로 사용했습니다.
 
-**Self-Play and Curriculum**: Early in development, we trained the agent against a fixed script (the provided Kaggle starter agent) to give it basic skills. As it improved, we moved to self-play: the agent would play against a copy of itself. We introduced a mechanism to occasionally update the opponent to the latest policy (or keep a pool of past versions) to ensure the learning agent always has a challenging adversary. This self-play approach is critical in competitive games to avoid the agent overfitting to a static strategy. In our implementation, we leveraged the custom dual-policy setup – the training code would alternate between using policy and policy_2 for the two players each episode, and updates were applied to the main policy network. This helped the agent gradually learn strategies that work well against different instances of itself.
+**Self-Play와 커리큘럼**: 초기에는 제공된 starter agent(스크립트)를 상대해 기본기를 익혔고, 이후 self-play 체제로 전환했습니다. 일정 주기로 상대를 최신 정책 또는 이전 버전으로 교체해 주며, 단일 전략에 과적합되는 것을 방지했습니다. dual-policy 구조로 두 플레이어를 각각 policy/policy_2로 할당하고, 에피소드마다 교대로 업데이트함으로써 다양한 전략을 학습할 수 있었습니다.
 
-## Results and Lessons Learned
+## 결과 및 배운 점
 
-**Training Outcome**: Although an official competition submission wasn’t achieved, the agent showed clear learning progress. Over many training iterations, the average rewards and win-rates (against baseline bots) improved significantly, indicating the agent was picking up useful strategies. For instance, the training curves showed the agent learning to efficiently gather energy and contest relics as training went on (see the **learning curve plot below**). Qualitatively, when we watched game replays of the trained agent, it demonstrated sensible behavior like grouping units for battles and securing resources on the map. These are encouraging signs that the complex neural network and training setup were successful in teaching the agent non-trivial tactics.
+**훈련 결과**: 공식 대회 제출은 못 했지만, 에이전트가 학습을 통해 실질적으로 발전하는 모습을 확인할 수 있었습니다. 여러 반복에서 평균 보상 및 승률이 눈에 띄게 향상됐으며, 학습 커브에서도 점차적으로 에너지를 효율적으로 수집하거나 유물을 적극적으로 쟁취하는 등 전략적 행동을 익히는 과정이 보였습니다. 트레이닝된 에이전트의 리플레이를 보면, 유닛들을 모아 전투를 벌이거나 자원을 차지하는 등 합리적이고 비트리비얼한 전략을 구사하는 것이 관찰됐습니다.
 
-**File Size Challenge**: One unexpected hurdle was the **model size constraint** on Kaggle. Our final policy network – due to the large CNN + MLP architecture needed for the task – resulted in a model file well over 100MB. Unfortunately, the competition’s submission system had a limit (approximately 100MB per submission) that wasn’t clearly advertised in the rules. This meant our agent couldn’t be submitted for official evaluation without significant downsizing or simplification. Compressing or pruning the model further would likely hurt its performance, so we made the difficult decision to accept that this was primarily a research endeavor. While we didn’t get a public leaderboard ranking, this outcome highlighted the trade-off between model complexity and deployability. It’s a valuable lesson in considering practical constraints (like file size or runtime) in addition to raw performance. In a real-world setting or future competitions, we would incorporate such constraints into the design from the start (e.g. using smaller networks or model compression techniques).
+**모델 용량 이슈**: 예상치 못한 문제 중 하나는 **Kaggle 제출 파일 크기 제한**이었습니다. CNN + MLP 기반 대규모 네트워크 덕분에 모델 파일이 100MB를 훌쩍 넘어서게 되었고, 이로 인해 공식 평가를 받지 못했습니다. 모델 크기를 더 줄이면 성능 저하가 불가피해, 이번 프로젝트는 연구 및 실험에 의미를 두는 것으로 방향을 정했습니다. 이 경험을 통해 실제 현업이나 미래 대회에서는 성능뿐만 아니라 실질적 제약(용량, 속도 등)까지 반드시 설계 초기부터 고려해야 함을 깨달았습니다.
 
-**Technical Takeaways**: This project was a deep dive into reinforcement learning engineering. We gained experience in:
-* Modifying and extending a popular RL framework (SB3) to fit a new problem – from custom policy definition to low-level algorithm tweaks.
-* Handling **multi-agent RL** via self-play, and the challenges of stability and diversity it brings.
-* Designing neural network architectures that merge different input modalities (spatial and tabular data) and output structured actions.
-* Debugging training of a complex model: we often had to investigate why learning stalled, which involved analyzing reward scaling, gradient norms, and occasionally instrumenting the code with printouts of distributions or implementing curriculum adjustments. This mirrors real-world RL development, which requires equal parts intuition and empirical tuning.
+**기술적 요점**: 이 프로젝트를 통해 강화학습 엔지니어링을 심도 있게 경험했습니다.
+* RL 프레임워크(SB3)를 상황에 맞게 커스터마이즈(정책 정의, 내부 알고리즘 수정 등)
+* self-play를 활용한 멀티에이전트 학습과 그 난이도 및 다양성 확보 문제
+* 다양한 입력(공간/비공간)과 복합형 액션을 다루는 신경망 구조 설계
+* 복잡한 모델 학습에서 reward scaling, gradient norm, 커리큘럼 조정 등 디버깅 노하우 축적
 
-Despite the lack of a competition medal, the **primary goal of learning was absolutely met**. The project showcases the ability to **take initiative** and build a complex AI agent from the ground up, navigate through research challenges, and adapt open-source tools beyond their original scope. This kind of experimental project is invaluable preparation for tackling practical machine learning problems in a professional environment.
+**기타**: GreedyLR 스케쥴러를 구현해 사용해 보았지만 성공적이진 않았습니다. (https://www.amazon.science/publications/zeroth-order-greedylr-an-adaptive-learning-rate-scheduler-for-deep-neural-network-training) 
 
-## Training Curves (Placeholder)
-Below is a placeholder for training performance graphs (e.g. average reward per episode over time, loss curves, etc.). These charts illustrate the agent’s learning progress. In a complete README, we would include screenshots or plots of the training curves here for visualization.
+비록 메달은 얻지 못했지만, **진짜 목표였던 실전 강화학습 경험 및 성장**이라는 측면에서는 최고의 성과를 거뒀다고 자부합니다. 오픈소스 도구의 한계를 넘어, 직접 AI 에이전트를 설계하고 시행착오를 겪으며 학습한 이 과정 자체가 머신러닝 실무 역량을 크게 끌어올려 준 소중한 경험이었습니다.
+
+## 학습 곡선 예시
+아래는 학습 성과를 시각화한 그래프 예시(평균 보상, 손실 곡선 등)입니다.
 
 ![Training Metrics Example](<images/Screenshot from 2025-03-09 23-57-56.png>)
 <sub>**▲Training Metrics Example**</sub>
 
 ## Project Structure
     kaggle-lux-stable-baseline3/
-    ├── GreedyLRScheduler/             # GreedyLR implementation
+    ├── GreedyLRScheduler/             # GreedyLR 구현
     ├── Notebooks/                     # 주피터 노트북 파일들
     │   ├── Agent_Development/         # 에이전트 개발 및 실험
     │   └── EDA/                       # 탐색적 데이터 분석
     ├── images/
     └── modified_packages/             # 수정된 패키지들
-        ├── luxai_s3/                  # 대회용 게임 environment 패키지
+        ├── luxai_s3/                  # 대회용 게임 환경 패키지
         └── stable_baseline3/          # 강화학습용 패키지
