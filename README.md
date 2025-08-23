@@ -4,7 +4,7 @@ https://www.kaggle.com/competitions/lux-ai-season-3
 ---
 
 ## 기술 스택
-* **프로그래밍 언어**: Python
+* **언어**: Python
 * **딥러닝 프레임워크**: PyTorch
 * **강화학습**: Stable Baselines 3 - https://stable-baselines3.readthedocs.io/en/master/
 * **게임 환경**: Lux AI Season 3 게임 환경(luxai_s3 Python 패키지)에서 시뮬레이션 진행. 환경 자체는 JAX 기반이지만 Python에서 사용 가능하도록 래핑되어 있어 게임의 상태와 보상 메커니즘을 제공함.
