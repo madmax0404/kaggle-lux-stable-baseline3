@@ -154,3 +154,24 @@ MultiInputActorCriticPolicy(
     └── modified_packages/             # 수정된 패키지들
         ├── luxai_s3/                  # 대회용 게임 환경 패키지
         └── stable_baseline3/          # 강화학습용 패키지
+
+---
+
+## Acknowledgements
+
+데이터셋과 대회 플랫폼을 제공한 Lux AI Challenge와 Kaggle에 감사드립니다.
+
+본 프로젝트는 다음 오픈소스의 도움을 받았습니다: Python, PyTorch, Stable Baselines 3, TensorBoard, pandas, numpy, matplotlib, seaborn, Jupyter, SciPy, Ubuntu.
+
+모든 데이터 이용은 대회 규정과 라이선스를 준수합니다.
+
+---
+
+## License
+
+Code © 2025 Jongyun Han (Max). Released under the MIT License.
+See the LICENSE file for details.
+
+Note: Datasets are NOT redistributed in this repository.
+Please download them from the official Kaggle competition page
+and comply with the competition rules/EULA.
