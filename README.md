@@ -1,4 +1,4 @@
-# Lux AI Season 3 – 강화학습 신경망 에이전트 (Kaggle 대회)
+# Kaggle 대회: Lux AI Season 3 – 강화학습 신경망 에이전트
 https://www.kaggle.com/competitions/lux-ai-season-3
 
 ---
