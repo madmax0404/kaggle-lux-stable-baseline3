@@ -6,6 +6,11 @@ https://www.kaggle.com/competitions/lux-ai-season-3
 
 ---
 
+## 개요
+이 프로젝트는 Kaggle(NeurIPS 2024)에서 진행된 **Lux AI Season 3** 대회를 위한 **실험적 강화학습 에이전트** 구현 사례입니다. Lux AI는 24x24 격자 맵 위에서 두 플레이어가 유닛을 조종해 자원을 수집하고, 상대와 전투하며, 유물을 점령하는 전략 게임입니다. 본 프로젝트의 목표는 단순히 대회 참가에 그치지 않고, **딥러닝 기반 강화학습의 전반을 실전에서 경험하고 배우는 것**이었습니다. Stable Baselines3(SB3)의 **PPO(Proximal Policy Optimization)** 알고리즘을 바탕으로 게임의 복잡한 관측/행동 공간을 다룰 수 있도록 에이전트를 직접 커스터마이즈했습니다. 이 과정 자체가 학습의 핵심이었으며, 최종적으로 생성된 모델이 Kaggle 제출 파일 용량 제한(약 100MB)을 초과해 공식 제출은 못 했지만, 실제 RL 설계와 구현을 깊이 경험할 수 있었습니다.
+
+---
+
 ## 기술 스택
 * **언어**: Python
 * **딥러닝 프레임워크**: PyTorch
@@ -14,11 +19,6 @@ https://www.kaggle.com/competitions/lux-ai-season-3
 * **툴 및 개발 환경**: Jupyter Notebook과 VS Code를 활용하여 개발 및 실험을 진행. 훈련은 GPU 가속을 지원하는 Ubuntu Linux 시스템에서 수행.
 * **시각화**: TensorBoard
 * **운영체제**: Linux (Ubuntu Desktop 24.04 LTS)
-
----
-
-## 개요
-이 프로젝트는 Kaggle(NeurIPS 2024)에서 진행된 **Lux AI Season 3** 대회를 위한 **실험적 강화학습 에이전트** 구현 사례입니다. Lux AI는 24x24 격자 맵 위에서 두 플레이어가 유닛을 조종해 자원을 수집하고, 상대와 전투하며, 유물을 점령하는 전략 게임입니다. 본 프로젝트의 목표는 단순히 대회 참가에 그치지 않고, **딥러닝 기반 강화학습의 전반을 실전에서 경험하고 배우는 것**이었습니다. Stable Baselines3(SB3)의 **PPO(Proximal Policy Optimization)** 알고리즘을 바탕으로 게임의 복잡한 관측/행동 공간을 다룰 수 있도록 에이전트를 직접 커스터마이즈했습니다. 이 과정 자체가 학습의 핵심이었으며, 최종적으로 생성된 모델이 Kaggle 제출 파일 용량 제한(약 100MB)을 초과해 공식 제출은 못 했지만, 실제 RL 설계와 구현을 깊이 경험할 수 있었습니다.
 
 ---
 
